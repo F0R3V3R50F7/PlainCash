@@ -1,0 +1,891 @@
+<!-- PlainCash - Business Assistant for Sole Traders   *
+ * MPL-2.0 https://mozilla.org/MPL/2.0/   *
+ * @version 0.5-R3 (Pre-Release)          *
+ * © TechnologystLabs - 2026              -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlainCash</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+  <link href="https://db.onlinewebfonts.com/c/4f406108dd8d33639fab548b9a4dc1bc?family=LED+DOT+Matrix+Display" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --aluminum-darkest: #18181b; --aluminum-dark: #27272a; --aluminum-mid: #3f3f46; --aluminum-light: #52525b; --aluminum-highlight: rgba(255,255,255,0.08); --aluminum-shadow: rgba(0,0,0,0.5); --wood-light: #b8863c; --wood-mid: #96652a; --wood-dark: #6b4420; --lcd-bg: #050508; --lcd-blue: #00d4ff; --lcd-blue-dim: rgba(0, 212, 255, 0.15); --lcd-green: #22ff44; --lcd-red: #ff4444; --leather-dark: #1c1916; --leather-mid: #2a2520; --leather-light: #3a3530; --money-in: #22c55e; --money-out: #ef4444; --warning: #f59e0b; }
+    html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #0a0a0a; color: #fafafa; overflow: hidden; -webkit-font-smoothing: antialiased; }
+    .app-frame { height: 100vh; display: flex; flex-direction: column; padding: 8px; background: linear-gradient(180deg, var(--wood-light) 0%, var(--wood-mid) 40%, var(--wood-dark) 100%); position: relative; }
+    .app-frame::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0px, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px, transparent 4px, transparent 8px, rgba(0,0,0,0.02) 8px, rgba(0,0,0,0.02) 9px), repeating-linear-gradient(90deg, transparent 0px, rgba(255,200,120,0.04) 20px, transparent 40px, rgba(0,0,0,0.03) 60px, transparent 80px), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); opacity: 0.5; mix-blend-mode: overlay; pointer-events: none; }
+    .app-frame::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent 5%, rgba(255,220,150,0.5) 30%, rgba(255,230,170,0.6) 50%, rgba(255,220,150,0.5) 70%, transparent 95%); }
+    .app-body { flex: 1; display: flex; flex-direction: column; background: linear-gradient(180deg, #3a3a3d 0%, #2d2d30 1%, #252528 3%, #1f1f22 50%, #1a1a1d 97%, #141416 100%); border-radius: 3px; position: relative; overflow: hidden; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.6); }
+    .app-body::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(180deg, transparent 0px, transparent 1px, rgba(255,255,255,0.02) 1px, rgba(255,255,255,0.02) 2px); pointer-events: none; }
+    .app-body::after { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); opacity: 0.03; pointer-events: none; }
+    .lcd-panel { margin: 16px 16px 12px; background: var(--lcd-bg); border-radius: 10px; padding: 20px 32px 28px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5); position: relative; overflow: visible; border: 3px solid; border-color: #52525b #27272a #1a1a1e #3f3f46; outline: 1px solid rgba(0,0,0,0.5); }
+    .lcd-panel::before { content: ''; position: absolute; inset: -6px; border-radius: 14px; background: linear-gradient(180deg, #4a4a4e 0%, #3a3a3e 15%, #2a2a2e 50%, #1a1a1e 85%, #101012 100%); z-index: -1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.5); }
+    .lcd-panel::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px); pointer-events: none; opacity: 0.5; border-radius: 10px; }
+    .lcd-content { display: flex; justify-content: space-between; align-items: flex-end; position: relative; z-index: 1; }
+    .lcd-left, .lcd-right { display: flex; gap: 24px; }
+    .lcd-left { justify-content: flex-start; }
+    .lcd-right { justify-content: flex-end; }
+    .lcd-section { display: flex; flex-direction: column; gap: 4px; }
+    .lcd-section.center { align-items: center; }
+    .lcd-section.right { align-items: flex-end; }
+    .lcd-label { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #444; }
+    .lcd-value { font-family: "LED DOT Matrix Display", monospace; font-weight: 400; letter-spacing: 2px; }
+    .lcd-value.small { font-size: 22px; }
+    .lcd-value.large { font-size: 38px; }
+    .lcd-value.in { color: var(--lcd-blue); text-shadow: 0 0 10px var(--lcd-blue), 0 0 20px var(--lcd-blue-dim), 0 0 30px var(--lcd-blue-dim); }
+    .lcd-value.out { color: var(--lcd-blue); text-shadow: 0 0 10px var(--lcd-blue), 0 0 20px var(--lcd-blue-dim); opacity: 0.7; }
+    .lcd-value.profit { color: var(--lcd-green); text-shadow: 0 0 15px var(--lcd-green), 0 0 30px rgba(34, 255, 68, 0.3); }
+    .lcd-value.profit.negative { color: var(--lcd-red); text-shadow: 0 0 15px var(--lcd-red), 0 0 30px rgba(255, 68, 68, 0.3); }
+    .bolt { position: absolute; width: 14px; height: 14px; background: radial-gradient(circle at 35% 35%, #d4d4d8 0%, #a1a1aa 25%, #78788c 50%, #52525b 75%, #3f3f46 100%); border-radius: 50%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.3), 0 1px 2px rgba(0,0,0,0.3); z-index: 20; }
+    .bolt::before { content: ''; position: absolute; top: 50%; left: 50%; width: 8px; height: 2px; background: linear-gradient(180deg, #52525b 0%, #71717a 100%); transform: translate(-50%, -50%); border-radius: 1px; }
+    .bolt::after { content: ''; position: absolute; top: 50%; left: 50%; width: 2px; height: 8px; background: linear-gradient(90deg, #52525b 0%, #71717a 100%); transform: translate(-50%, -50%); border-radius: 1px; }
+    .bolt-tl { top: 8px; left: 8px; transform: rotate(12deg); }
+    .bolt-tr { top: 8px; right: 8px; transform: rotate(-23deg); }
+    .bolt-bl { bottom: 8px; left: 8px; transform: rotate(38deg); }
+    .bolt-br { bottom: 8px; right: 8px; transform: rotate(-8deg); }
+    .bolt-dark { background: radial-gradient(circle at 35% 35%, #71717a 0%, #52525b 25%, #3f3f46 50%, #27272a 75%, #18181b 100%); box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), inset 0 -1px 2px rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.5); }
+    .bolt-dark::before { background: linear-gradient(180deg, #18181b 0%, #27272a 100%); }
+    .bolt-dark::after { background: linear-gradient(90deg, #18181b 0%, #27272a 100%); }
+    .lcd-panel .bolt-tl { top: 8px; left: 8px; transform: rotate(-15deg); opacity: 0.3; }
+    .lcd-panel .bolt-tr { top: 8px; right: 8px; transform: rotate(42deg); opacity: 0.3; }
+    .lcd-panel .bolt-bl { bottom: 8px; left: 8px; transform: rotate(7deg); opacity: 0.3; }
+    .lcd-panel .bolt-br { bottom: 8px; right: 8px; transform: rotate(-31deg); opacity: 0.3; }
+    .timeline-island { position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); display: flex; gap: 2px; padding: 4px 10px; background: linear-gradient(180deg, #2d2d30 0%, #252528 50%, #1f1f22 100%); border-radius: 6px 6px 0 0; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 -2px 4px rgba(0,0,0,0.3); z-index: 10; }
+    .timeline-btn { padding: 3px 10px; background: transparent; border: none; border-radius: 3px; font-size: 10px; font-weight: 600; color: #555; cursor: pointer; transition: all 0.15s ease; }
+    .timeline-btn:hover { color: #888; background: rgba(255,255,255,0.05); }
+    .timeline-btn.active { background: rgba(0, 212, 255, 0.2); color: var(--lcd-blue); box-shadow: 0 0 8px rgba(0, 212, 255, 0.3); }
+    .main-area { flex: 1; display: flex; gap: 12px; margin: 0 16px; overflow: hidden; }
+    .panel { flex: 1; background: linear-gradient(180deg, #fafafa 0%, #f0f0f2 100%); display: flex; flex-direction: column; overflow: hidden; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.2); position: relative; }
+    .panel-header { padding: 12px 30px; background: linear-gradient(180deg, #ffffff 0%, #f8f8f9 20%, #f0f0f2 80%, #e8e8ea 100%); border-bottom: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.15); position: relative; z-index: 2; }
+    .panel-title { font-size: 11px; font-weight: 600; color: #52525b; text-transform: uppercase; letter-spacing: 0.5px; }
+    .panel-count { font-size: 11px; color: #a1a1aa; font-weight: 500; }
+    .panel-content { flex: 1; overflow-y: auto; padding: 12px 28px 28px 28px; background: linear-gradient(180deg, #e8e8ea 0%, #dcdcde 100%); position: relative; }
+    .panel-content::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='brush'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.01 0.4' numOctaves='3' seed='5' /%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23brush)'/%3E%3C/svg%3E"); opacity: 0.12; pointer-events: none; }
+    .search-input { padding: 6px 10px; border: none; border-radius: 4px; font-size: 11px; background: linear-gradient(180deg, #e8e8ea 0%, #f0f0f2 100%); box-shadow: inset 0 1px 2px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.8); width: 120px; color: #3f3f46; }
+    .search-input:focus { outline: none; box-shadow: inset 0 1px 2px rgba(0,0,0,0.15), 0 0 0 2px rgba(59, 130, 246, 0.3); }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; position: relative; z-index: 1; }
+    .product-btn { aspect-ratio: 1; background: linear-gradient(180deg, #e4e4e7 0%, #d4d4d8 50%, #c8c8cc 100%); border: none; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; transition: all 0.1s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+    .product-btn::before { content: ''; position: absolute; top: 1px; left: 1px; right: 1px; height: 45%; background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 100%); border-radius: 5px 5px 50% 50%; pointer-events: none; }
+    .product-btn:hover { background: linear-gradient(180deg, #ececef 0%, #dcdce0 50%, #d0d0d4 100%); }
+    .product-btn:active { background: linear-gradient(180deg, #c8c8cc 0%, #d4d4d8 50%, #dcdce0 100%); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(0,0,0,0.05); }
+    .product-btn.service { background: linear-gradient(180deg, #e0d4f7 0%, #d0c4e7 50%, #c4b8db 100%); }
+    .product-btn.low-stock { box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.15), 0 0 0 2px var(--warning); }
+    .product-icon { font-size: 22px; position: relative; z-index: 1; }
+    .product-name { font-size: 10px; font-weight: 600; color: #3f3f46; text-align: center; line-height: 1.2; max-width: 90%; position: relative; z-index: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .product-price { font-size: 11px; font-weight: 700; color: #16a34a; position: relative; z-index: 1; }
+    .product-stock { font-size: 9px; color: #71717a; position: relative; z-index: 1; }
+    .product-btn.add-new { background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 50%, #d0f5dd 100%); border: 2px dashed #86efac; box-shadow: none; }
+    .product-btn.add-new::before { display: none; }
+    .product-btn.add-new:hover { background: linear-gradient(180deg, #dcfce7 0%, #bbf7d0 50%, #b0efc5 100%); border-color: #4ade80; }
+    .product-btn.add-new .product-icon { font-size: 28px; color: #22c55e; }
+    .product-btn.add-new .product-name { color: #16a34a; }
+    .receipt-tape { background: linear-gradient(180deg, #ffffff 0%, #fefefe 20%, #fafafa 80%, #f5f5f5 100%); border-radius: 3px; padding: 10px 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 3px rgba(0,0,0,0.1); font-family: 'Courier New', monospace; font-size: 12px; color: #1a1a1a; min-height: 80px; max-height: 160px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.08); position: relative; z-index: 1; }
+    .receipt-tape.empty { display: flex; align-items: center; justify-content: center; color: #a1a1aa; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 12px; font-style: italic; }
+    .receipt-line { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed #e4e4e7; cursor: pointer; }
+    .receipt-line:hover { background: #f5f5f5; }
+    .receipt-line:last-child { border-bottom: none; }
+    .receipt-item-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .receipt-item-qty { width: 35px; text-align: center; color: #71717a; }
+    .receipt-item-price { width: 60px; text-align: right; font-weight: bold; }
+    .receipt-total { margin-top: 8px; padding-top: 8px; border-top: 2px solid #27272a; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
+    .section-label { font-size: 10px; font-weight: 600; color: #71717a; text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 8px; position: relative; z-index: 1; }
+    .transaction-list { display: flex; flex-direction: column; gap: 6px; position: relative; z-index: 1; max-height: 200px; overflow-y: auto; }
+    .transaction-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: linear-gradient(180deg, #ffffff 0%, #fefefe 20%, #fafafa 80%, #f5f5f5 100%); border-radius: 5px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); transition: all 0.1s ease; position: relative; z-index: 1; cursor: pointer; }
+    .transaction-item:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 4px rgba(0,0,0,0.1); }
+    .transaction-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .transaction-icon.income { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); }
+    .transaction-icon.expense { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+    .transaction-details { flex: 1; min-width: 0; }
+    .transaction-name { font-size: 12px; font-weight: 600; color: #27272a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .transaction-date { font-size: 10px; color: #a1a1aa; }
+    .transaction-amount { font-size: 13px; font-weight: 700; }
+    .transaction-amount.income { color: var(--money-in); }
+    .transaction-amount.expense { color: var(--money-out); }
+    .quick-add { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; margin-top: 8px; background: linear-gradient(180deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%); border: none; border-radius: 5px; color: #92400e; font-weight: 600; font-size: 11px; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.1); transition: all 0.1s ease; position: relative; z-index: 1; }
+    .quick-add:hover { background: linear-gradient(180deg, #fef9c3 0%, #fef08a 50%, #fde047 100%); }
+    .leather-pad { margin: 12px 0 0 0; padding: 16px 20px 14px; background: linear-gradient(180deg, #3d3632 0%, #2f2a26 15%, #262220 50%, #1e1a18 85%, #181514 100%); border-radius: 0 0 3px 3px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), inset 0 2px 4px rgba(0,0,0,0.3); position: relative; display: flex; justify-content: space-between; align-items: center; overflow: hidden; }
+    .leather-pad::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); opacity: 0.08; pointer-events: none; }
+    .leather-pad::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent 0px, transparent 1px, rgba(0,0,0,0.03) 1px, rgba(0,0,0,0.03) 2px), repeating-linear-gradient(-45deg, transparent 0px, transparent 1px, rgba(0,0,0,0.02) 1px, rgba(0,0,0,0.02) 2px), repeating-linear-gradient(90deg, transparent 0px, rgba(255,255,255,0.01) 30px, transparent 60px); pointer-events: none; }
+    .action-buttons { display: flex; gap: 8px; position: relative; z-index: 1; }
+    .action-btn { padding: 10px 20px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.1s ease; border: none; position: relative; overflow: hidden; }
+    .action-btn::before { content: ''; position: absolute; top: 1px; left: 1px; right: 1px; height: 45%; background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%); border-radius: 5px 5px 50% 50%; pointer-events: none; }
+    .action-btn.clear { background: linear-gradient(180deg, #71717a 0%, #52525b 50%, #3f3f46 100%); color: #fafafa; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3); }
+    .action-btn.clear:hover { background: linear-gradient(180deg, #82828a 0%, #63636b 50%, #52525b 100%); }
+    .action-btn.complete { background: linear-gradient(180deg, #4ade80 0%, #22c55e 50%, #16a34a 100%); color: white; box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.2), 0 2px 8px rgba(34, 197, 94, 0.4); text-shadow: 0 -1px 0 rgba(0,0,0,0.2); }
+    .action-btn.complete:hover { background: linear-gradient(180deg, #86efac 0%, #4ade80 50%, #22c55e 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.2), 0 4px 12px rgba(34, 197, 94, 0.5); }
+    .footer-buttons { display: flex; gap: 8px; position: relative; z-index: 1; }
+    .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg, #71717a 0%, #52525b 50%, #3f3f46 100%); border: none; border-radius: 6px; color: #fafafa; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3); transition: all 0.1s ease; position: relative; overflow: hidden; }
+    .icon-btn::before { content: ''; position: absolute; top: 1px; left: 1px; right: 1px; height: 45%; background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 100%); border-radius: 5px 5px 50% 50%; pointer-events: none; }
+    .icon-btn:hover { background: linear-gradient(180deg, #82828a 0%, #63636b 50%, #52525b 100%); }
+    .icon-btn svg { width: 20px; height: 20px; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: linear-gradient(180deg, #fafafa 0%, #f0f0f2 100%); border-radius: 12px; padding: 24px; min-width: 320px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.8); position: relative; }
+    .modal-close { position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border: none; background: linear-gradient(180deg, #e4e4e7 0%, #d4d4d8 100%); border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #71717a; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    .modal-close:hover { background: linear-gradient(180deg, #f4f4f5 0%, #e4e4e7 100%); color: #27272a; }
+    .modal h3 { font-size: 18px; font-weight: 600; color: #27272a; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: #52525b; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid rgba(0,0,0,0.15); border-radius: 6px; font-size: 14px; background: white; color: #27272a; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .form-input:focus { outline: none; border-color: #3b82f6; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05), 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
+    .modal-buttons { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
+    .btn { padding: 10px 20px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.1s ease; }
+    .btn-secondary { background: linear-gradient(180deg, #e4e4e7 0%, #d4d4d8 100%); color: #3f3f46; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    .btn-secondary:hover { background: linear-gradient(180deg, #f4f4f5 0%, #e4e4e7 100%); }
+    .btn-primary { background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%); color: white; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3); }
+    .btn-primary:hover { background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%); }
+    .btn-danger { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); color: white; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
+    .notification { position: fixed; top: 20px; right: 20px; background: linear-gradient(180deg, #27272a 0%, #18181b 100%); border-radius: 8px; padding: 14px 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border-left: 4px solid var(--lcd-blue); z-index: 10000; max-width: 300px; display: flex; align-items: center; gap: 12px; animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .notification-icon { font-size: 18px; }
+    .notification-content { flex: 1; }
+    .notification-title { font-size: 13px; font-weight: 600; color: #fafafa; margin-bottom: 2px; }
+    .notification-message { font-size: 12px; color: #a1a1aa; }
+    .notification-close { background: none; border: none; color: #71717a; font-size: 18px; cursor: pointer; padding: 0; line-height: 1; }
+    .notification-close:hover { color: #fafafa; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+  </style>
+</head>
+<body>
+  <div class="app-frame">
+    <div class="app-body">
+      <!-- LCD Display -->
+      <div class="lcd-panel">
+        <div class="bolt bolt-dark bolt-tl"></div>
+        <div class="bolt bolt-dark bolt-tr"></div>
+        <div class="bolt bolt-dark bolt-bl"></div>
+        <div class="bolt bolt-dark bolt-br"></div>
+        <div class="lcd-content">
+          <div class="lcd-left">
+            <div class="lcd-section">
+              <div class="lcd-label">Profit</div>
+              <div class="lcd-value small profit" id="profitDisplay">£0.00</div>
+            </div>
+            <div class="lcd-section">
+              <div class="lcd-label">Sales</div>
+              <div class="lcd-value small in" id="salesDisplay">£0.00</div>
+            </div>
+          </div>
+          
+          <div class="lcd-right">
+            <div class="lcd-section">
+              <div class="lcd-label">VAT Due</div>
+              <div class="lcd-value small out" id="vatDisplay">£0.00</div>
+            </div>
+            <div class="lcd-section right">
+              <div class="lcd-label">Expenses</div>
+              <div class="lcd-value small out" id="expensesDisplay">£0.00</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="timeline-island">
+          <button class="timeline-btn active" data-period="today">Today</button>
+          <button class="timeline-btn" data-period="week">Week</button>
+          <button class="timeline-btn" data-period="month">Month</button>
+          <button class="timeline-btn" data-period="quarter">Qtr</button>
+          <button class="timeline-btn" data-period="year">Year</button>
+        </div>
+      </div>
+      
+      <!-- Main Area -->
+      <div class="main-area">
+        <!-- Products Panel -->
+        <div class="panel">
+          <div class="bolt bolt-tl"></div>
+          <div class="bolt bolt-tr"></div>
+          <div class="bolt bolt-bl"></div>
+          <div class="bolt bolt-br"></div>
+          <div class="panel-header">
+            <span class="panel-title">Products & Services</span>
+            <input type="text" class="search-input" id="productSearch" placeholder="Search..." oninput="renderCatalog()">
+          </div>
+          <div class="panel-content">
+            <div class="product-grid" id="catalog"></div>
+          </div>
+        </div>
+        
+        <!-- Cart Panel -->
+        <div class="panel">
+          <div class="bolt bolt-tl"></div>
+          <div class="bolt bolt-tr"></div>
+          <div class="bolt bolt-bl"></div>
+          <div class="bolt bolt-br"></div>
+          <div class="panel-header">
+            <span class="panel-title">Current Sale</span>
+            <span class="panel-count" id="cartCount">0 items</span>
+          </div>
+          <div class="panel-content">
+            <div class="receipt-tape empty" id="receiptTape">Tap a product to begin...</div>
+            
+            <div class="section-label">Recent Transactions</div>
+            <div class="transaction-list" id="transactionList"></div>
+            
+            <button class="quick-add" onclick="showExpenseModal()">
+              <span>📝</span> Record Expense
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="leather-pad">
+        <div class="action-buttons">
+          <button class="action-btn clear" onclick="clearCart()">Clear Sale</button>
+          <button class="action-btn complete" id="completeBtn" onclick="checkout()">Complete Sale</button>
+        </div>
+        <div class="footer-buttons">
+          <button class="icon-btn" onclick="exportHMRCReport()" title="HMRC Report">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </button>
+          <button class="icon-btn" onclick="showSettingsModal()" title="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Product Modal -->
+  <div class="modal" id="addProductModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('addProductModal')">×</button>
+      <h3>Add Product / Service</h3>
+      <form onsubmit="event.preventDefault(); addProduct();">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" class="form-input" id="productName" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price (£)</label>
+            <input type="number" class="form-input" id="productPrice" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select class="form-input" id="productType">
+              <option value="product">Product</option>
+              <option value="service">Service</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stock</label>
+            <input type="number" class="form-input" id="productStock" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label>Icon (emoji)</label>
+            <input type="text" class="form-input" id="productIcon" maxlength="2" placeholder="📦">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>VAT Category</label>
+          <select class="form-input" id="productTax" required>
+            <option value="Standard Rate">Standard Rate (20%)</option>
+            <option value="Reduced Rate">Reduced Rate (5%)</option>
+            <option value="Zero Rate">Zero Rate (0%)</option>
+            <option value="Exempt">Exempt</option>
+          </select>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addProductModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Product Modal -->
+  <div class="modal" id="editProductModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('editProductModal')">×</button>
+      <h3>Edit Product / Service</h3>
+      <form onsubmit="event.preventDefault(); updateProduct();">
+        <input type="hidden" id="editProductId">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" class="form-input" id="editProductName" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price (£)</label>
+            <input type="number" class="form-input" id="editProductPrice" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select class="form-input" id="editProductType">
+              <option value="product">Product</option>
+              <option value="service">Service</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stock</label>
+            <input type="number" class="form-input" id="editProductStock" min="0">
+          </div>
+          <div class="form-group">
+            <label>Icon (emoji)</label>
+            <input type="text" class="form-input" id="editProductIcon" maxlength="2">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>VAT Category</label>
+          <select class="form-input" id="editProductTax" required>
+            <option value="Standard Rate">Standard Rate (20%)</option>
+            <option value="Reduced Rate">Reduced Rate (5%)</option>
+            <option value="Zero Rate">Zero Rate (0%)</option>
+            <option value="Exempt">Exempt</option>
+          </select>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-danger" onclick="deleteProduct()">Delete</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editProductModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Expense Modal -->
+  <div class="modal" id="expenseModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('expenseModal')">×</button>
+      <h3>Record Expense</h3>
+      <form onsubmit="event.preventDefault(); addExpense();">
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" class="form-input" id="expenseDesc" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Amount (£)</label>
+            <input type="number" class="form-input" id="expenseAmount" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>VAT Category</label>
+            <select class="form-input" id="expenseTax">
+              <option value="Standard Rate">Standard Rate (20%)</option>
+              <option value="Reduced Rate">Reduced Rate (5%)</option>
+              <option value="Zero Rate">Zero Rate (0%)</option>
+              <option value="Exempt">Exempt</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('expenseModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('settingsModal')">×</button>
+      <h3>Settings</h3>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="vatRegistered"> VAT Registered
+        </label>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Standard Rate (%)</label>
+          <input type="number" class="form-input" id="standardRate" value="20" step="0.1">
+        </div>
+        <div class="form-group">
+          <label>Reduced Rate (%)</label>
+          <input type="number" class="form-input" id="reducedRate" value="5" step="0.1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Low Stock Threshold</label>
+        <input type="number" class="form-input" id="lowStockThreshold" value="5" min="1">
+      </div>
+      <hr style="margin: 20px 0; border: none; border-top: 1px solid #e4e4e7;">
+      <div class="form-group">
+        <label>Data Management</label>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button type="button" class="btn btn-secondary" onclick="backupDB()" style="flex:1">Backup</button>
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('dbFileInput').click()" style="flex:1">Restore</button>
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('settingsModal')">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="saveSettings()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="dbFileInput" style="display:none" accept=".json" onchange="restoreDB(event)">
+
+  <script>
+    // ==================== DATABASE ====================
+    const DB_KEY = 'PlainCash_v3';
+    
+    const defaultDB = {
+      products: [],
+      transactions: [],
+      settings: { vatRegistered: false, standardRate: 20, reducedRate: 5, lowStockThreshold: 5 }
+    };
+    
+    let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
+    if (!db.settings) db.settings = defaultDB.settings;
+    
+    let cart = [];
+    let currentPeriod = 'today';
+    
+    function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+    
+    // ==================== INITIALIZATION ====================
+    function init() {
+      renderCatalog();
+      renderCart();
+      renderTransactions();
+      updateDisplays();
+      setupTimelineButtons();
+    }
+    
+    function setupTimelineButtons() {
+      document.querySelectorAll('.timeline-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.timeline-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentPeriod = btn.dataset.period;
+          updateDisplays();
+        });
+      });
+    }
+    
+    // ==================== CATALOG ====================
+    function renderCatalog() {
+      const search = document.getElementById('productSearch').value.toLowerCase();
+      const filtered = db.products.filter(p => p.name.toLowerCase().includes(search));
+      
+      filtered.sort((a, b) => {
+        const aLow = a.type === 'product' && a.stock < db.settings.lowStockThreshold;
+        const bLow = b.type === 'product' && b.stock < db.settings.lowStockThreshold;
+        return aLow === bLow ? a.name.localeCompare(b.name) : aLow ? -1 : 1;
+      });
+      
+      const html = filtered.map(p => {
+        const isLowStock = p.type === 'product' && p.stock < db.settings.lowStockThreshold;
+        const isService = p.type === 'service';
+        return `
+          <button class="product-btn ${isService ? 'service' : ''} ${isLowStock ? 'low-stock' : ''}" 
+                  onclick="addToCart('${p.id}')" 
+                  oncontextmenu="event.preventDefault(); editProductModal('${p.id}')">
+            <span class="product-icon">${p.icon || '📦'}</span>
+            <span class="product-name">${p.name}</span>
+            <span class="product-price">£${p.price.toFixed(2)}</span>
+            ${!isService ? `<span class="product-stock">${p.stock} in stock</span>` : ''}
+          </button>
+        `;
+      }).join('');
+      
+      document.getElementById('catalog').innerHTML = html + `
+        <button class="product-btn add-new" onclick="showModal('addProductModal')">
+          <span class="product-icon">+</span>
+          <span class="product-name">Add New</span>
+        </button>
+      `;
+    }
+    
+    // ==================== CART ====================
+    function addToCart(productId) {
+      const product = db.products.find(p => p.id === productId);
+      if (!product) return;
+      
+      if (product.type === 'product' && product.stock <= 0) {
+        notify('Out of Stock', `${product.name} is out of stock.`);
+        return;
+      }
+      
+      const existing = cart.find(item => item.id === productId);
+      if (existing) {
+        if (product.type === 'product' && existing.qty >= product.stock) {
+          notify('Stock Limit', `Only ${product.stock} available.`);
+          return;
+        }
+        existing.qty++;
+      } else {
+        cart.push({ ...product, qty: 1 });
+      }
+      
+      renderCart();
+      notify('Added', `${product.name} added to cart.`);
+    }
+    
+    function removeFromCart(productId) {
+      const idx = cart.findIndex(item => item.id === productId);
+      if (idx > -1) {
+        if (cart[idx].qty > 1) cart[idx].qty--;
+        else cart.splice(idx, 1);
+        renderCart();
+      }
+    }
+    
+    function clearCart() {
+      cart = [];
+      renderCart();
+    }
+    
+    function renderCart() {
+      const tape = document.getElementById('receiptTape');
+      const count = document.getElementById('cartCount');
+      const btn = document.getElementById('completeBtn');
+      
+      const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      const itemCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      
+      count.textContent = `${itemCount} item${itemCount !== 1 ? 's' : ''}`;
+      btn.textContent = total > 0 ? `Complete Sale — £${total.toFixed(2)}` : 'Complete Sale';
+      
+      if (cart.length === 0) {
+        tape.className = 'receipt-tape empty';
+        tape.innerHTML = 'Tap a product to begin...';
+        return;
+      }
+      
+      tape.className = 'receipt-tape';
+      tape.innerHTML = cart.map(item => `
+        <div class="receipt-line" onclick="removeFromCart('${item.id}')">
+          <span class="receipt-item-name">${item.name}</span>
+          <span class="receipt-item-qty">×${item.qty}</span>
+          <span class="receipt-item-price">£${(item.price * item.qty).toFixed(2)}</span>
+        </div>
+      `).join('') + `
+        <div class="receipt-total">
+          <span>TOTAL</span>
+          <span>£${total.toFixed(2)}</span>
+        </div>
+      `;
+    }
+    
+    function checkout() {
+      if (cart.length === 0) {
+        notify('Empty Cart', 'Add items to complete a sale.');
+        return;
+      }
+      
+      const date = new Date().toISOString();
+      
+      cart.forEach(item => {
+        db.transactions.unshift({
+          id: 't' + Date.now() + Math.random(),
+          date,
+          type: 'income',
+          amount: item.price * item.qty,
+          description: item.name,
+          taxCategory: item.taxCategory
+        });
+        
+        if (item.type === 'product') {
+          const product = db.products.find(p => p.id === item.id);
+          if (product) product.stock = Math.max(0, product.stock - item.qty);
+        }
+      });
+      
+      saveDB();
+      clearCart();
+      renderCatalog();
+      renderTransactions();
+      updateDisplays();
+      notify('Sale Complete', 'Transaction recorded successfully.');
+    }
+    
+    // ==================== TRANSACTIONS ====================
+    function renderTransactions() {
+      const list = document.getElementById('transactionList');
+      const recent = db.transactions.slice(0, 10);
+      
+      if (recent.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:#a1a1aa;padding:20px;font-size:12px;">No transactions yet</div>';
+        return;
+      }
+      
+      list.innerHTML = recent.map(t => {
+        const isIncome = t.type === 'income';
+        const date = new Date(t.date);
+        const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = isToday(date) ? `Today, ${timeStr}` : date.toLocaleDateString('en-GB');
+        
+        return `
+          <div class="transaction-item">
+            <div class="transaction-icon ${t.type}">${isIncome ? '💰' : '📦'}</div>
+            <div class="transaction-details">
+              <div class="transaction-name">${t.description}</div>
+              <div class="transaction-date">${dateStr}</div>
+            </div>
+            <div class="transaction-amount ${t.type}">${isIncome ? '+' : '−'}£${t.amount.toFixed(2)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function isToday(date) {
+      const today = new Date();
+      return date.toDateString() === today.toDateString();
+    }
+    
+    // ==================== DISPLAYS ====================
+    function updateDisplays() {
+      const transactions = filterByPeriod(db.transactions, currentPeriod);
+      
+      const sales = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+      const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+      const profit = sales - expenses;
+      
+      let vatDue = 0;
+      if (db.settings.vatRegistered) {
+        transactions.filter(t => t.type === 'income').forEach(t => {
+          if (t.taxCategory === 'Standard Rate') vatDue += t.amount * (db.settings.standardRate / 100);
+          else if (t.taxCategory === 'Reduced Rate') vatDue += t.amount * (db.settings.reducedRate / 100);
+        });
+      }
+      
+      document.getElementById('salesDisplay').textContent = `£${sales.toFixed(2)}`;
+      document.getElementById('expensesDisplay').textContent = `£${expenses.toFixed(2)}`;
+      document.getElementById('vatDisplay').textContent = `£${vatDue.toFixed(2)}`;
+      
+      const profitEl = document.getElementById('profitDisplay');
+      profitEl.textContent = profit < 0 ? `−£${Math.abs(profit).toFixed(2)}` : `£${profit.toFixed(2)}`;
+      profitEl.classList.toggle('negative', profit < 0);
+    }
+    
+    function filterByPeriod(transactions, period) {
+      const now = new Date();
+      const start = new Date();
+      
+      switch (period) {
+        case 'today': start.setHours(0, 0, 0, 0); break;
+        case 'week': start.setDate(now.getDate() - 7); break;
+        case 'month': start.setMonth(now.getMonth() - 1); break;
+        case 'quarter': start.setMonth(now.getMonth() - 3); break;
+        case 'year': start.setFullYear(now.getFullYear() - 1); break;
+      }
+      
+      return transactions.filter(t => new Date(t.date) >= start);
+    }
+    
+    // ==================== PRODUCTS ====================
+    function addProduct() {
+      const product = {
+        id: 'p' + Date.now(),
+        name: document.getElementById('productName').value.trim(),
+        price: parseFloat(document.getElementById('productPrice').value),
+        type: document.getElementById('productType').value,
+        stock: parseInt(document.getElementById('productStock').value) || 0,
+        icon: document.getElementById('productIcon').value || '📦',
+        taxCategory: document.getElementById('productTax').value
+      };
+      
+      if (product.type === 'service') product.stock = 999;
+      
+      db.products.push(product);
+      saveDB();
+      renderCatalog();
+      closeModal('addProductModal');
+      notify('Product Added', `${product.name} added to catalog.`);
+    }
+    
+    function editProductModal(productId) {
+      const p = db.products.find(pr => pr.id === productId);
+      if (!p) return;
+      
+      document.getElementById('editProductId').value = p.id;
+      document.getElementById('editProductName').value = p.name;
+      document.getElementById('editProductPrice').value = p.price;
+      document.getElementById('editProductType').value = p.type;
+      document.getElementById('editProductStock').value = p.stock;
+      document.getElementById('editProductIcon').value = p.icon;
+      document.getElementById('editProductTax').value = p.taxCategory;
+      
+      showModal('editProductModal');
+    }
+    
+    function updateProduct() {
+      const id = document.getElementById('editProductId').value;
+      const product = db.products.find(p => p.id === id);
+      if (!product) return;
+      
+      product.name = document.getElementById('editProductName').value.trim();
+      product.price = parseFloat(document.getElementById('editProductPrice').value);
+      product.type = document.getElementById('editProductType').value;
+      product.stock = product.type === 'service' ? 999 : parseInt(document.getElementById('editProductStock').value);
+      product.icon = document.getElementById('editProductIcon').value;
+      product.taxCategory = document.getElementById('editProductTax').value;
+      
+      saveDB();
+      renderCatalog();
+      closeModal('editProductModal');
+      notify('Updated', `${product.name} updated.`);
+    }
+    
+    function deleteProduct() {
+      const id = document.getElementById('editProductId').value;
+      if (confirm('Delete this product?')) {
+        db.products = db.products.filter(p => p.id !== id);
+        saveDB();
+        renderCatalog();
+        closeModal('editProductModal');
+        notify('Deleted', 'Product removed from catalog.');
+      }
+    }
+    
+    // ==================== EXPENSES ====================
+    function showExpenseModal() { showModal('expenseModal'); }
+    
+    function addExpense() {
+      const expense = {
+        id: 't' + Date.now(),
+        date: new Date().toISOString(),
+        type: 'expense',
+        amount: parseFloat(document.getElementById('expenseAmount').value),
+        description: document.getElementById('expenseDesc').value.trim(),
+        taxCategory: document.getElementById('expenseTax').value
+      };
+      
+      db.transactions.unshift(expense);
+      saveDB();
+      renderTransactions();
+      updateDisplays();
+      closeModal('expenseModal');
+      document.getElementById('expenseDesc').value = '';
+      document.getElementById('expenseAmount').value = '';
+      notify('Expense Recorded', `${expense.description} — £${expense.amount.toFixed(2)}`);
+    }
+    
+    // ==================== SETTINGS ====================
+    function showSettingsModal() {
+      document.getElementById('vatRegistered').checked = db.settings.vatRegistered;
+      document.getElementById('standardRate').value = db.settings.standardRate;
+      document.getElementById('reducedRate').value = db.settings.reducedRate;
+      document.getElementById('lowStockThreshold').value = db.settings.lowStockThreshold;
+      showModal('settingsModal');
+    }
+    
+    function saveSettings() {
+      db.settings.vatRegistered = document.getElementById('vatRegistered').checked;
+      db.settings.standardRate = parseFloat(document.getElementById('standardRate').value);
+      db.settings.reducedRate = parseFloat(document.getElementById('reducedRate').value);
+      db.settings.lowStockThreshold = parseInt(document.getElementById('lowStockThreshold').value);
+      saveDB();
+      renderCatalog();
+      updateDisplays();
+      closeModal('settingsModal');
+      notify('Settings Saved', 'Your preferences have been updated.');
+    }
+    
+    function backupDB() {
+      const data = JSON.stringify(db, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PlainCash-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      notify('Backup Created', 'Database exported successfully.');
+    }
+    
+    function restoreDB(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          db = JSON.parse(e.target.result);
+          if (!db.settings) db.settings = defaultDB.settings;
+          saveDB();
+          renderCatalog();
+          renderTransactions();
+          updateDisplays();
+          closeModal('settingsModal');
+          notify('Restored', 'Database restored successfully.');
+        } catch (err) {
+          notify('Error', 'Failed to restore database.');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+    
+    // ==================== HMRC EXPORT ====================
+    function exportHMRCReport() {
+      const income = db.transactions.filter(t => t.type === 'income');
+      const expenses = db.transactions.filter(t => t.type === 'expense');
+      
+      let csv = "HMRC Report - PlainCash\n\n";
+      csv += "INCOME\nDate,Description,Amount,VAT Category\n";
+      income.forEach(t => {
+        csv += `${new Date(t.date).toLocaleDateString()},"${t.description}",${t.amount.toFixed(2)},"${t.taxCategory}"\n`;
+      });
+      
+      csv += "\nEXPENSES\nDate,Description,Amount,VAT Category\n";
+      expenses.forEach(t => {
+        csv += `${new Date(t.date).toLocaleDateString()},"${t.description}",${t.amount.toFixed(2)},"${t.taxCategory}"\n`;
+      });
+      
+      const totalIncome = income.reduce((s, t) => s + t.amount, 0);
+      const totalExpenses = expenses.reduce((s, t) => s + t.amount, 0);
+      
+      csv += `\nSUMMARY\nTotal Income,£${totalIncome.toFixed(2)}\nTotal Expenses,£${totalExpenses.toFixed(2)}\nNet Profit,£${(totalIncome - totalExpenses).toFixed(2)}\n`;
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `hmrc-report-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      notify('Report Exported', 'HMRC report downloaded.');
+    }
+    
+    // ==================== MODALS & NOTIFICATIONS ====================
+    function showModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    
+    function notify(title, message) {
+      document.querySelectorAll('.notification').forEach(n => n.remove());
+      
+      const notif = document.createElement('div');
+      notif.className = 'notification';
+      notif.innerHTML = `
+        <div class="notification-icon">💡</div>
+        <div class="notification-content">
+          <div class="notification-title">${title}</div>
+          <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+      `;
+      
+      document.body.appendChild(notif);
+      setTimeout(() => notif.remove(), 4000);
+    }
+    
+    // Initialize
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
